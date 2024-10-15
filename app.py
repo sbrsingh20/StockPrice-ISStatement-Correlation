@@ -91,7 +91,12 @@ def generate_projections(inflation_details, income_details, expected_inflation):
     for column in income_details.index:
         if column != 'Stock Name':
             current_value = income_details[column]
-            projected_value = current_value * (1 + inflation_change / 100)  # Simplified assumption
+            if column in inflation_details.index:  # Check if there is a correlation factor
+                correlation_factor = inflation_details[column] if column in inflation_details.index else 0
+                projected_value = current_value + (current_value * correlation_factor * inflation_change / 100)
+            else:
+                projected_value = current_value * (1 + inflation_change / 100)  # Simplified assumption
+            
             change = projected_value - current_value
             
             new_row = pd.DataFrame([{
