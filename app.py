@@ -72,14 +72,14 @@ def generate_projections(inflation_details, income_details, expected_inflation):
     # Check available columns in inflation details
     st.write("Available parameters in inflation details:", inflation_details.index)
 
-    # Check if 'Stock Price' exists
-    if 'Stock Price' in inflation_details.index:
+    # Check if 'Latest Close Price' exists
+    if 'Latest Close Price' in inflation_details.index:
         price_change = inflation_details['Event Coefficient'] * inflation_change
-        projected_price = inflation_details['Stock Price'] + price_change
+        projected_price = inflation_details['Latest Close Price'] + price_change
         
         new_row = pd.DataFrame([{
             'Parameter': 'Projected Stock Price',
-            'Current Value': inflation_details['Stock Price'],
+            'Current Value': inflation_details['Latest Close Price'],
             'Projected Value': projected_price,
             'Change': price_change
         }])
