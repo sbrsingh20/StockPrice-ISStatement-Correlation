@@ -74,12 +74,13 @@ def generate_projections(inflation_details, income_details, expected_inflation):
 
     # Check if 'Latest Close Price' exists
     if 'Latest Close Price' in inflation_details.index:
+        latest_close_price = pd.to_numeric(inflation_details['Latest Close Price'], errors='coerce')
         price_change = inflation_details['Event Coefficient'] * inflation_change
-        projected_price = inflation_details['Latest Close Price'] + price_change
+        projected_price = latest_close_price + price_change
         
         new_row = pd.DataFrame([{
             'Parameter': 'Projected Stock Price',
-            'Current Value': inflation_details['Latest Close Price'],
+            'Current Value': latest_close_price,
             'Projected Value': projected_price,
             'Change': price_change
         }])
@@ -90,22 +91,25 @@ def generate_projections(inflation_details, income_details, expected_inflation):
     # Project changes in income statement items
     for column in income_details.index:
         if column != 'Stock Name':
-            current_value = income_details[column]
-            if column in inflation_details.index:  # Check if there is a correlation factor
-                correlation_factor = inflation_details[column] if column in inflation_details.index else 0
-                projected_value = current_value + (current_value * correlation_factor * inflation_change / 100)
+            current_value = pd.to_numeric(income_details[column], errors='coerce')
+            if pd.notna(current_value):  # Check if the conversion was successful
+                if column in inflation_details.index:  # Check if there is a correlation factor
+                    correlation_factor = inflation_details[column] if column in inflation_details.index else 0
+                    projected_value = current_value + (current_value * correlation_factor * inflation_change / 100)
+                else:
+                    projected_value = current_value * (1 + inflation_change / 100)  # Simplified assumption
+                
+                change = projected_value - current_value
+                
+                new_row = pd.DataFrame([{
+                    'Parameter': column,
+                    'Current Value': current_value,
+                    'Projected Value': projected_value,
+                    'Change': change
+                }])
+                projections = pd.concat([projections, new_row], ignore_index=True)
             else:
-                projected_value = current_value * (1 + inflation_change / 100)  # Simplified assumption
-            
-            change = projected_value - current_value
-            
-            new_row = pd.DataFrame([{
-                'Parameter': column,
-                'Current Value': current_value,
-                'Projected Value': projected_value,
-                'Change': change
-            }])
-            projections = pd.concat([projections, new_row], ignore_index=True)
+                st.warning(f"Could not convert current value for {column} to numeric.")
 
     # Display the projections table
     st.write("### Projected Changes Based on Expected Inflation")
