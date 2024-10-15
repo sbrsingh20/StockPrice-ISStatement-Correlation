@@ -77,12 +77,13 @@ def generate_projections(inflation_details, income_details, expected_inflation):
         price_change = inflation_details['Event Coefficient'] * inflation_change
         projected_price = inflation_details['Stock Price'] + price_change
         
-        projections = projections.append({
+        new_row = pd.DataFrame([{
             'Parameter': 'Projected Stock Price',
             'Current Value': inflation_details['Stock Price'],
             'Projected Value': projected_price,
             'Change': price_change
-        }, ignore_index=True)
+        }])
+        projections = pd.concat([projections, new_row], ignore_index=True)
     else:
         st.warning("Stock Price data not available in inflation details.")
 
@@ -93,12 +94,13 @@ def generate_projections(inflation_details, income_details, expected_inflation):
             projected_value = current_value * (1 + inflation_change / 100)  # Simplified assumption
             change = projected_value - current_value
             
-            projections = projections.append({
+            new_row = pd.DataFrame([{
                 'Parameter': column,
                 'Current Value': current_value,
                 'Projected Value': projected_value,
                 'Change': change
-            }, ignore_index=True)
+            }])
+            projections = pd.concat([projections, new_row], ignore_index=True)
 
     # Display the projections table
     st.write("### Projected Changes Based on Expected Inflation")
