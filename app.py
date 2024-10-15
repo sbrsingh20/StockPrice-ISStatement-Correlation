@@ -63,8 +63,8 @@ def interpret_income_data(details):
 
 # Function to generate projections based on expected inflation
 def generate_projections(inflation_details, income_details, expected_inflation):
-    current_inflation = 3.65  # Actual inflation rate
-    inflation_change = expected_inflation - current_inflation
+    latest_event_value = inflation_details['Latest Event Value']  # Actual inflation value from data
+    inflation_change = expected_inflation - latest_event_value
     
     # Create a DataFrame to store the results
     projections = pd.DataFrame(columns=['Parameter', 'Current Value', 'Projected Value', 'Change'])
