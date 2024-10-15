@@ -70,16 +70,22 @@ def generate_projections(inflation_details, income_details, expected_inflation):
     # Create a DataFrame to store the results
     projections = pd.DataFrame(columns=['Parameter', 'Current Value', 'Projected Value', 'Change'])
 
-    # Project changes in inflation details
-    price_change = inflation_details['Event Coefficient'] * inflation_change
-    projected_price = inflation_details['Stock Price'] + price_change
-    
-    projections = projections.append({
-        'Parameter': 'Projected Stock Price',
-        'Current Value': inflation_details['Stock Price'],
-        'Projected Value': projected_price,
-        'Change': price_change
-    }, ignore_index=True)
+    # Check available columns in inflation details
+    st.write(inflation_details.index)
+
+    # Make sure to adjust this key based on the actual column name in your DataFrame
+    if 'Stock Price' in inflation_details.index:
+        price_change = inflation_details['Event Coefficient'] * inflation_change
+        projected_price = inflation_details['Stock Price'] + price_change
+        
+        projections = projections.append({
+            'Parameter': 'Projected Stock Price',
+            'Current Value': inflation_details['Stock Price'],
+            'Projected Value': projected_price,
+            'Change': price_change
+        }, ignore_index=True)
+    else:
+        st.warning("Stock Price data not available in inflation details.")
 
     # Project changes in income statement items
     for column in income_details.index:
@@ -99,6 +105,3 @@ def generate_projections(inflation_details, income_details, expected_inflation):
     st.write("### Projected Changes Based on Expected Inflation")
     st.dataframe(projections)
 
-# Check if user has entered a stock symbol
-if stock_name:
-    get_stock_details(stock_name)
