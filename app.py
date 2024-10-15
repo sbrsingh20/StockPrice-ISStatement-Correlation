@@ -50,12 +50,15 @@ def interpret_inflation_data(details):
 # Function to interpret income data
 def interpret_income_data(details):
     st.write("### Interpretation of Income Statement Data")
-    if details['Average Operating Margin'] > 0.2:
-        st.write("**High Operating Margin:** Indicates strong management effectiveness.")
-    elif details['Average Operating Margin'] < 0.1:
-        st.write("**Low Operating Margin:** Reflects risk in profitability.")
+    average_operating_margin = details.get('Average Operating Margin')
 
-    # Add more interpretations as per your conditions...
+    if average_operating_margin is not None:  # Check if the value exists
+        if average_operating_margin > 0.2:
+            st.write("**High Operating Margin:** Indicates strong management effectiveness.")
+        elif average_operating_margin < 0.1:
+            st.write("**Low Operating Margin:** Reflects risk in profitability.")
+    else:
+        st.warning("Average Operating Margin data not available.")
 
 # Check if user has entered a stock symbol
 if stock_name:
