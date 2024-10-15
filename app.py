@@ -54,7 +54,6 @@ def interpret_inflation_data(details):
 # Function to interpret income data
 def interpret_income_data(details):
     st.write("### Interpretation of Income Statement Data")
-    # Skip check for Average Operating Margin
     if 'Average Operating Margin' in details.index:
         average_operating_margin = details['Average Operating Margin']
         if average_operating_margin > 0.2:
@@ -71,9 +70,9 @@ def generate_projections(inflation_details, income_details, expected_inflation):
     projections = pd.DataFrame(columns=['Parameter', 'Current Value', 'Projected Value', 'Change'])
 
     # Check available columns in inflation details
-    st.write(inflation_details.index)
+    st.write("Available parameters in inflation details:", inflation_details.index)
 
-    # Make sure to adjust this key based on the actual column name in your DataFrame
+    # Check if 'Stock Price' exists
     if 'Stock Price' in inflation_details.index:
         price_change = inflation_details['Event Coefficient'] * inflation_change
         projected_price = inflation_details['Stock Price'] + price_change
@@ -105,3 +104,6 @@ def generate_projections(inflation_details, income_details, expected_inflation):
     st.write("### Projected Changes Based on Expected Inflation")
     st.dataframe(projections)
 
+# Check if user has entered a stock symbol
+if stock_name:
+    get_stock_details(stock_name)
