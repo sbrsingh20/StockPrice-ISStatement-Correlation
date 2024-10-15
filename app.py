@@ -12,6 +12,9 @@ st.title('Stock Analysis Based on Inflation Events')
 st.sidebar.header('Search for a Stock')
 stock_name = st.sidebar.text_input('Enter Stock Symbol:', '')
 
+# User input for expected upcoming inflation
+expected_inflation = st.sidebar.number_input('Enter Expected Upcoming Inflation Rate (%):', value=3.65, step=0.01)
+
 # Function to fetch details for a specific stock
 def get_stock_details(stock_symbol):
     inflation_row = inflation_data[inflation_data['Symbol'] == stock_symbol]
@@ -31,6 +34,9 @@ def get_stock_details(stock_symbol):
         st.write("### Income Statement Data")
         st.write(income_row)
 
+        # Generate projections based on expected inflation
+        generate_projections(inflation_details, income_details, expected_inflation)
+        
         # Additional interpretations based on conditions
         interpret_inflation_data(inflation_details)
         interpret_income_data(income_details)
@@ -45,8 +51,6 @@ def interpret_inflation_data(details):
     elif details['Event Coefficient'] > 1:
         st.write("**1% Increase in Inflation:** Stock price increases, benefiting from inflation.")
 
-    # Add more interpretations as per your conditions...
-
 # Function to interpret income data
 def interpret_income_data(details):
     st.write("### Interpretation of Income Statement Data")
@@ -57,6 +61,43 @@ def interpret_income_data(details):
             st.write("**High Operating Margin:** Indicates strong management effectiveness.")
         elif average_operating_margin < 0.1:
             st.write("**Low Operating Margin:** Reflects risk in profitability.")
+
+# Function to generate projections based on expected inflation
+def generate_projections(inflation_details, income_details, expected_inflation):
+    current_inflation = 3.65  # Actual inflation rate
+    inflation_change = expected_inflation - current_inflation
+    
+    # Create a DataFrame to store the results
+    projections = pd.DataFrame(columns=['Parameter', 'Current Value', 'Projected Value', 'Change'])
+
+    # Project changes in inflation details
+    price_change = inflation_details['Event Coefficient'] * inflation_change
+    projected_price = inflation_details['Stock Price'] + price_change
+    
+    projections = projections.append({
+        'Parameter': 'Projected Stock Price',
+        'Current Value': inflation_details['Stock Price'],
+        'Projected Value': projected_price,
+        'Change': price_change
+    }, ignore_index=True)
+
+    # Project changes in income statement items
+    for column in income_details.index:
+        if column != 'Stock Name':
+            current_value = income_details[column]
+            projected_value = current_value * (1 + inflation_change / 100)  # Simplified assumption
+            change = projected_value - current_value
+            
+            projections = projections.append({
+                'Parameter': column,
+                'Current Value': current_value,
+                'Projected Value': projected_value,
+                'Change': change
+            }, ignore_index=True)
+
+    # Display the projections table
+    st.write("### Projected Changes Based on Expected Inflation")
+    st.dataframe(projections)
 
 # Check if user has entered a stock symbol
 if stock_name:
